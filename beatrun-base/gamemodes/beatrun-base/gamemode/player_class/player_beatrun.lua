@@ -19,40 +19,6 @@ PLAYER.TauntCam = TauntCamera()
 PLAYER.WalkSpeed = 200
 PLAYER.RunSpeed = 400
 
-function ReplayStop(ply, debugdump)
-	-- I know, it's stupid, but it's needed so course loading doesnt sh*t itself
-
-	--if not game.SinglePlayer() then return end
-	if not ply.ReplayTicks then return end
-	if ply.InReplay then return end
-
-	print("Ending Replay (" .. #ply.ReplayTicks .. "ticks)")
-
-	ply.InReplay = false
-	ply.ReplayRecording = false
-
-	local debugdata = {ply.ReplayStartPos, ply.ReplayTicks}
-
-	local replay = util.Compress(util.TableToJSON(debugdata))
-	local dir = "beatrun/replays/" .. game.GetMap() .. "/"
-
-	file.CreateDir(dir)
-	file.Write(dir .. "replaydump.txt", replay)
-end
-
-function ReplayStart(ply)
-	--if not game.SinglePlayer() then return end
-	if ply.InReplay then return end
-
-	print("Starting Replay")
-
-	ply.ReplayRecording = true
-	ply.ReplayTicks = {}
-	ply.ReplayFirstTick = false
-	ply.ReplayStartPos = ply:GetPos()
-	ply.ReplayLastAng = nil
-end
-
 function PLAYER:SetupDataTables()
 	BaseClass.SetupDataTables(self)
 	self.Player:NetworkVar("Float", 0, "MEMoveLimit")
@@ -242,14 +208,7 @@ function PLAYER:Spawn()
 				ply:SetLocalVelocity(vector_origin)
 				ply:SetPos(Course_StartPos)
 			end)
-
-			ReplayStop(ply)
-			ReplayStart(ply)
 		end
-	end
-
-	if not ply.InReplay and not CPSave then
-		ply:SetNW2Float("CPNum", 1)
 	end
 
 	if not CPSave then
