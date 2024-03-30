@@ -10,15 +10,7 @@ if SERVER then
 
 	net.Receive("JoinSync", function(len, ply)
 		if not ply.Synced then
-			net.Start("BuildMode_Sync")
-				net.WriteFloat(Course_StartPos.x)
-				net.WriteFloat(Course_StartPos.y)
-				net.WriteFloat(Course_StartPos.z)
-				net.WriteFloat(Course_StartAng)
-				net.WriteString(Course_Name)
-				net.WriteString(Course_ID)
-			net.Send(ply)
-
+			-- lmao
 			ply.Synced = true
 		end
 	end)
