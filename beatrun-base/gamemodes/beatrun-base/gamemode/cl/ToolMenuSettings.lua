@@ -7,212 +7,34 @@ end
 hook.Add("AddToolMenuCategories", "Beatrun_Category", function()
 	spawnmenu.AddToolCategory("Beatrun", "Client", language.GetPhrase("beatrun.toolsmenu.client"))
 	spawnmenu.AddToolCategory("Beatrun", "Server", language.GetPhrase("beatrun.toolsmenu.server"))
+	spawnmenu.AddToolCategory("Beatrun", "About", language.GetPhrase("beatrun.toolsmenu.about"))
 end)
 
 hook.Add("PopulateToolMenu", "Beatrun_ToolMenu", function()
-	spawnmenu.AddToolMenuOption("Beatrun", "Client", "beatrun_courses", language.GetPhrase("beatrun.toolsmenu.courses.name"), "", "", function(panel)
-		panel:ClearControls()
-		panel:SetName("#beatrun.toolsmenu.courses.desc")
+	spawnmenu.AddToolMenuOption("Beatrun", "About", "beatrun_about", "#beatrun.toolsmenu.about", "", "", function(panel)
+		panel:Help("#beatrun.toolsmenu.about.name")
+		panel:Help("#beatrun.toolsmenu.about.version")
+		panel:Help(" ")
+		panel:Help("#beatrun.toolsmenu.about.ogcreator")
+		panel:Help("#beatrun.toolsmenu.about.decompiler")
+		panel:Help("#beatrun.toolsmenu.about.modder")
+		panel:Help("#beatrun.toolsmenu.about.basecreator")
 
-		panel:CheckBox("#beatrun.toolsmenu.courses.faststart", "Beatrun_FastStart")
-		panel:ControlHelp("#beatrun.toolsmenu.courses.faststartdesc")
-
-		panel:CheckBox("#beatrun.toolsmenu.courses.checkpointsave", "Beatrun_CPSave")
-		panel:ControlHelp("#beatrun.toolsmenu.courses.checkpointsavedesc")
-
-		local divider = vgui.Create("DHorizontalDivider")
-		panel:AddItem(divider)
-
-		panel:TextEntry("#beatrun.toolsmenu.courses.database", "Beatrun_Domain")
-		panel:ControlHelp(language.GetPhrase("beatrun.toolsmenu.courses.databasedesc"))
-
-		local apiKeyButton = vgui.Create("DButton", panel)
-		apiKeyButton:SetText("#beatrun.toolsmenu.courses.changeapikey")
-		apiKeyButton:SetSize(0, 20)
-		apiKeyButton.DoClick = function()
-			local frame = vgui.Create("DFrame")
-			frame:SetTitle("#beatrun.toolsmenu.courses.enterapikey")
-			frame:SetSize(300, 100)
-			frame:SetDeleteOnClose(true)
-			frame:Center()
-			frame:MakePopup()
-
-			local TextEntry = vgui.Create("DTextEntry", frame)
-			TextEntry:Dock(TOP)
-
-			local okButton = vgui.Create("DButton", frame)
-			okButton:SetText("#beatrun.misc.ok")
-			okButton:SetPos(25, 60)
-			okButton:SetSize(250, 30)
-			okButton.DoClick = function()
-				local key = string.Replace(TextEntry:GetValue(), " ", "")
-
-				RunConsoleCommand("Beatrun_Apikey", key)
-				frame:Close()
-			end
+		local button = vgui.Create( "DButton", panel )
+		button:SetSize( 0, 20 )
+		button:SetText( "#beatrun.repourlbutton.upstream" )
+		button.DoClick = function()
+		    gui.OpenURL( "https://github.com/JonnyBro/beatrun" )
 		end
-		panel:AddItem(apiKeyButton)
+		panel:AddItem(button)
 
-		local divider = vgui.Create("DHorizontalDivider")
-		panel:AddItem(divider)
-
-		local saveCourseButton = vgui.Create("DButton", panel)
-		saveCourseButton:SetText("#beatrun.toolsmenu.courses.savecourse")
-		saveCourseButton:SetSize(0, 20)
-		saveCourseButton.DoClick = function()
-			local frame = vgui.Create("DFrame")
-			frame:SetTitle("#beatrun.toolsmenu.courses.namesavecourse")
-			frame:SetSize(300, 100)
-			frame:SetDeleteOnClose(true)
-			frame:Center()
-			frame:MakePopup()
-
-			local TextEntry = vgui.Create("DTextEntry", frame)
-			TextEntry:Dock(TOP)
-
-			local okButton = vgui.Create("DButton", frame)
-			okButton:SetText("#beatrun.misc.ok")
-			okButton:SetPos(25, 60)
-			okButton:SetSize(250, 30)
-			okButton.DoClick = function()
-				local name = string.Replace(TextEntry:GetValue(), " ", "_")
-
-				RunConsoleCommand("Beatrun_SaveCourse", name)
-				frame:Close()
-			end
+		local button2 = vgui.Create( "DButton", panel )
+		button2:SetSize( 0, 20 )
+		button2:SetText( "#beatrun.repourlbutton.base" )
+		button2.DoClick = function()
+		    gui.OpenURL( "https://github.com/LostTrackpad/beatrun-base" )
 		end
-		panel:AddItem(saveCourseButton)
-
-		local loadCourseButton = vgui.Create("DButton", panel)
-		loadCourseButton:SetText("#beatrun.toolsmenu.courses.loadcourse")
-		loadCourseButton:SetSize(0, 20)
-		loadCourseButton.DoClick = function()
-			local frame = vgui.Create("DFrame")
-			frame:SetTitle("#beatrun.toolsmenu.courses.enterloadcourse")
-			frame:SetSize(300, 100)
-			frame:SetDeleteOnClose(true)
-			frame:Center()
-			frame:MakePopup()
-
-			local TextEntry = vgui.Create("DTextEntry", frame)
-			TextEntry:Dock(TOP)
-
-			local okButton = vgui.Create("DButton", frame)
-			okButton:SetText("#beatrun.misc.ok")
-			okButton:SetPos(25, 60)
-			okButton:SetSize(250, 30)
-			okButton.DoClick = function()
-				local code = string.Replace(TextEntry:GetValue(), " ", "")
-
-				RunConsoleCommand("Beatrun_LoadCode", code)
-				frame:Close()
-			end
-		end
-		panel:AddItem(loadCourseButton)
-
-		local uploadCourseButton = vgui.Create("DButton", panel)
-		uploadCourseButton:SetText("#beatrun.toolsmenu.courses.uploadcourse")
-		uploadCourseButton:SetSize(0, 20)
-		uploadCourseButton.DoClick = function()
-			RunConsoleCommand("Beatrun_UploadCourse")
-			notification.AddLegacy("#beatrun.misc.checkconsole", NOTIFY_HINT, 5)
-		end
-		panel:AddItem(uploadCourseButton)
-
-		local updateCourseButton = vgui.Create("DButton", panel)
-		updateCourseButton:SetText("#beatrun.toolsmenu.courses.updatecourse")
-		updateCourseButton:SetSize(0, 20)
-		updateCourseButton.DoClick = function()
-			local frame = vgui.Create("DFrame")
-			frame:SetTitle("#beatrun.toolsmenu.courses.enterloadcourse")
-			frame:SetSize(300, 100)
-			frame:SetDeleteOnClose(true)
-			frame:Center()
-			frame:MakePopup()
-
-			local TextEntry = vgui.Create("DTextEntry", frame)
-			TextEntry:Dock(TOP)
-
-			local okButton = vgui.Create("DButton", frame)
-			okButton:SetText("#beatrun.misc.ok")
-			okButton:SetPos(25, 60)
-			okButton:SetSize(250, 30)
-			okButton.DoClick = function()
-				RunConsoleCommand("Beatrun_UpdateCode", TextEntry:GetValue())
-				notification.AddLegacy("#beatrun.misc.checkconsole", NOTIFY_HINT, 5)
-				frame:Close()
-			end
-		end
-		panel:AddItem(updateCourseButton)
-		panel:Help("#beatrun.toolsmenu.courses.updatecoursehelp")
-	end)
-
-	spawnmenu.AddToolMenuOption("Beatrun", "Client", "beatrun_hud", "#beatrun.toolsmenu.hud.name", "", "", function(panel)
-		panel:ClearControls()
-		panel:SetName("#beatrun.toolsmenu.hud.desc")
-
-		panel:CheckBox("#beatrun.toolsmenu.hud.dynamic", "Beatrun_HUDDynamic")
-		panel:ControlHelp("#beatrun.toolsmenu.hud.dynamicdesc")
-
-		panel:CheckBox("#beatrun.toolsmenu.hud.sway", "Beatrun_HUDSway")
-		panel:ControlHelp("#beatrun.toolsmenu.hud.swaydesc")
-
-		panel:CheckBox("#beatrun.toolsmenu.hud.reticle", "Beatrun_HUDReticle")
-		panel:ControlHelp("#beatrun.toolsmenu.hud.reticledesc")
-
-		panel:CheckBox("#beatrun.toolsmenu.hud.nametags", "Beatrun_Nametags")
-		panel:ControlHelp("#beatrun.toolsmenu.hud.nametagsdesc")
-
-		panel:CheckBox("#beatrun.toolsmenu.hud.hudxp", "Beatrun_HUDXP")
-		panel:ControlHelp("#beatrun.toolsmenu.hud.hudxpdesc")
-
-		panel:CheckBox("#beatrun.toolsmenu.hud.wind", "Beatrun_Wind")
-		panel:ControlHelp("#beatrun.toolsmenu.hud.winddesc")
-
-		panel:NumSlider("#beatrun.toolsmenu.hud.fov", "Beatrun_FOV", 90, 120, 0)
-		panel:Help("#beatrun.toolsmenu.hud.fovdesc")
-
-		panel:NumSlider("#beatrun.toolsmenu.hud.hidden", "Beatrun_HUDHidden", 0, 2, 0)
-		panel:ControlHelp(language.GetPhrase("beatrun.toolsmenu.hud.hiddendesc"))
-
-		local divider = vgui.Create("DHorizontalDivider")
-		panel:AddItem(divider)
-
-		panel:Help("#beatrun.toolsmenu.hud.textcolor")
-		local HudTextColor = vgui.Create("DColorMixer", panel)
-		HudTextColor:Dock(FILL)
-		HudTextColor:SetPalette(true)
-		HudTextColor:SetAlphaBar(true)
-		HudTextColor:SetWangs(true)
-		HudTextColor:SetColor(string.ToColor(GetConVar("Beatrun_HUDTextColor"):GetString()))
-		function HudTextColor:ValueChanged(color)
-			RunConsoleCommand("Beatrun_HUDTextColor", string.FromColor(color))
-		end
-		panel:AddItem(HudTextColor)
-
-		panel:Help("#beatrun.toolsmenu.hud.cornercolor")
-		local HudCornerColor = vgui.Create("DColorMixer", panel)
-		HudCornerColor:Dock(FILL)
-		HudCornerColor:SetPalette(true)
-		HudCornerColor:SetAlphaBar(true)
-		HudCornerColor:SetWangs(true)
-		HudCornerColor:SetColor(string.ToColor(GetConVar("Beatrun_HUDCornerColor"):GetString()))
-		function HudCornerColor:ValueChanged(color)
-			RunConsoleCommand("Beatrun_HUDCornerColor", string.FromColor(color))
-		end
-		panel:AddItem(HudCornerColor)
-
-		panel:Help("#beatrun.toolsmenu.hud.floatxpcolor")
-		local HudFXPColor = vgui.Create("DColorMixer", panel)
-		HudFXPColor:Dock(FILL)
-		HudFXPColor:SetPalette(true)
-		HudFXPColor:SetAlphaBar(true)
-		HudFXPColor:SetWangs(true)
-		HudFXPColor:SetColor(string.ToColor(GetConVar("Beatrun_HUDFloatingXPColor"):GetString()))
-		function HudFXPColor:ValueChanged(color)
-			RunConsoleCommand("Beatrun_HUDFloatingXPColor", string.FromColor(color))
-		end
-		panel:AddItem(HudFXPColor)
+		panel:AddItem(button2)
 	end)
 
 	spawnmenu.AddToolMenuOption("Beatrun", "Client", "beatrun_viewbob", "#beatrun.toolsmenu.viewbob.name", "", "", function(panel)
@@ -304,98 +126,5 @@ hook.Add("PopulateToolMenu", "Beatrun_ToolMenu", function()
 
 		panel:CheckBox("#beatrun.toolsmenu.moves.totsugekidirection", "Beatrun_TotsugekiDir")
 		panel:ControlHelp(language.GetPhrase("beatrun.toolsmenu.moves.totsugekidirectiondesc"))
-	end)
-
-	spawnmenu.AddToolMenuOption("Beatrun", "Server", "beatrun_gamemodes", "#beatrun.toolsmenu.gamemodes.name", "", "", function(panel)
-		panel:ClearControls()
-		panel:SetName("#beatrun.toolsmenu.gamemodes.desc")
-
-		panel:NumSlider("#beatrun.toolsmenu.gamemodes.infectionstarttime", "Beatrun_InfectionStartTime", 5, 20, 0)
-		panel:Help("#beatrun.toolsmenu.gamemodes.infectiontime")
-
-		panel:NumSlider("#beatrun.toolsmenu.gamemodes.infectiongametime", "Beatrun_InfectionGameTime", 30, 600, 0)
-		panel:Help("#beatrun.toolsmenu.gamemodes.infectiontime")
-
-		local InfectionButton = vgui.Create("DButton", panel)
-		InfectionButton:SetText("#beatrun.toolsmenu.gamemodes.infection")
-		InfectionButton:SetSize(0, 20)
-		InfectionButton.DoClick = function()
-			if GetGlobalBool("GM_DEATHMATCH") or GetGlobalBool("GM_DATATHEFT") then
-				InfectionButton:SetText("#beatrun.toolsmenu.gamemodes.error")
-
-				timer.Simple(2, function()
-					InfectionButton:SetText("#beatrun.toolsmenu.gamemodes.infection")
-				end)
-
-				return
-			end
-
-			ToggleGamemode("infection")
-		end
-		panel:AddItem(InfectionButton)
-
-		local DatatheftButton = vgui.Create("DButton", panel)
-		DatatheftButton:SetText("#beatrun.toolsmenu.gamemodes.datatheft")
-		DatatheftButton:SetSize(0, 20)
-		DatatheftButton.DoClick = function()
-			if GetGlobalBool("GM_INFECTION") or GetGlobalBool("GM_DEATHMATCH") then
-				DatatheftButton:SetText("#beatrun.toolsmenu.gamemodes.error")
-
-				timer.Simple(2, function()
-					DatatheftButton:SetText("#beatrun.toolsmenu.gamemodes.datatheft")
-				end)
-
-				return
-			end
-
-			ToggleGamemode("datatheft")
-		end
-		panel:AddItem(DatatheftButton)
-
-		local DeathmatchButton = vgui.Create("DButton", panel)
-		DeathmatchButton:SetText("#beatrun.toolsmenu.gamemodes.deathmatch")
-		DeathmatchButton:SetSize(0, 20)
-		DeathmatchButton.DoClick = function()
-			if GetGlobalBool("GM_INFECTION") or GetGlobalBool("GM_DATATHEFT") then
-				DeathmatchButton:SetText("#beatrun.toolsmenu.gamemodes.error")
-
-				timer.Simple(2, function()
-					DeathmatchButton:SetText("#beatrun.toolsmenu.gamemodes.deathmatch")
-				end)
-
-				return
-			end
-
-			ToggleGamemode("deathmatch")
-		end
-		panel:AddItem(DeathmatchButton)
-
-		-- local divider = vgui.Create("DHorizontalDivider")
-		-- panel:AddItem(divider)
-
-		-- local LoadoutMenuButton = vgui.Create("DButton", panel)
-		-- LoadoutMenuButton:SetText("Open Loadouts Menu")
-		-- LoadoutMenuButton:SetSize(0, 20)
-		-- LoadoutMenuButton.DoClick = function()
-		-- 	local frame = vgui.Create("DFrame")
-		-- 	frame:SetTitle("Loadouts menu")
-		-- 	frame:SetSize(400, 300)
-		-- 	frame:SetDeleteOnClose(true)
-		-- 	frame:Center()
-		-- 	frame:MakePopup()
-
-		-- 	local TextEntry = vgui.Create("DTextEntry", frame)
-		-- 	TextEntry:Dock(TOP)
-
-		-- 	local okButton = vgui.Create("DButton", frame)
-		-- 	okButton:SetText("Change API Key")
-		-- 	okButton:SetPos(25, 60)
-		-- 	okButton:SetSize(250, 30)
-		-- 	okButton.DoClick = function()
-		-- 		RunConsoleCommand("Beatrun_LoadoutMenu", TextEntry:GetValue())
-		-- 		frame:Close()
-		-- 	end
-		-- end
-		-- panel:AddItem(LoadoutMenuButton)
 	end)
 end)
