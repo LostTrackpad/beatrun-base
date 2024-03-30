@@ -1,0 +1,6 @@
+"beatrun"
+{
+	"base"		"base"
+	"title"		"Beatrun Base Gamemode"
+	"menusystem"	"0"
+}
