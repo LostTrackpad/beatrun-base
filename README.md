@@ -4,6 +4,8 @@
 
 Parkour gamemode for _Garry's Mod_, modified for use as a gamemode base.
 
+[!NOTE] This version has exactly 0 modules in total and 0 superfluous functionality as a gamemode base (course functionality and builtin gamemodes).
+
 _Wanna play Beatrun? Check [this](https://github.com/JonnyBro/beatrun) version of Beatrun out instead._
 
 **NOT SUPPORTED ON THE BEATRUN.RU DISCORD. DO NOT ASK FOR HELP THERE.**
