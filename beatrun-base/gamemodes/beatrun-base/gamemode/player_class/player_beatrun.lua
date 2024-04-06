@@ -347,11 +347,19 @@ function PLAYER:CreateMove(cmd)
 end
 
 function PLAYER:CalcView(view)
+	local prefov = view.fov
 	local fov = GetConVar("Beatrun_FOV"):GetInt()
 	local mult = (self.Player:InOverdrive() and 1.1) or 1
+	local fixfovmult = 1
 
 	if CLIENT then
 		view.fov = fov * mult
+		if !LocalPlayer():GetActiveWeapon().ARC9 and GetConVar("Beatrun_Debug_FOVFix"):GetBool() then
+			fixfovmult = view.fov / fov
+		else
+			fixfovmult = 1
+		end
+		view.fov = fov * mult * fixfovmult
 	end
 
 	if self.TauntCam:CalcView(view, self.Player, self.Player:IsPlayingTaunt()) then return true end
