@@ -1,8 +1,9 @@
 VERSIONGLOBAL = "v1.0?"
 
-DeriveGamemode("sandbox")
+--DeriveGamemode("sandbox")
+-- Controls whether Beatrun's "derived" from Sandbox, which gives you the Spawnmenu and stuff.
 
-GM.Name = "Beatrun"
+GM.Name = "Beatrun Base"
 GM.Author = "who cares"
 GM.Email = "whocares@noone.com"
 GM.Website = "www.mirrorsedge.com xd"
