@@ -24,6 +24,7 @@ end
 if CLIENT then
 	CreateClientConVar("Beatrun_FOV", 100, true, true, language.GetPhrase("beatrun.convars.fov"), 70, 120)
 	CreateClientConVar("Beatrun_CPSave", 1, true, true, language.GetPhrase("beatrun.convars.cpsave"), 0, 1)
+	CreateClientConVar("Beatrun_Debug_FOVFix", 1, true, false, "(Don't localize, for debug usage only) Toggles FOV zooming fix.", 0, 1)
 end
 
 hook.Add("PlayerNoClip", "BlockNoClip", function(ply, enabled)
