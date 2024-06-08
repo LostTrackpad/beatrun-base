@@ -7,6 +7,13 @@ if CLIENT then
 	CreateConVar("cl_weaponcolor", "0.30 1.80 2.10", {FCVAR_ARCHIVE, FCVAR_USERINFO, FCVAR_DONTRECORD}, "The value is a Vector - so between 0-1 - not between 0-255")
 	CreateConVar("cl_playerskin", "0", {FCVAR_ARCHIVE, FCVAR_USERINFO, FCVAR_DONTRECORD}, "The skin to use, if the model has any")
 	CreateConVar("cl_playerbodygroups", "0", {FCVAR_ARCHIVE, FCVAR_USERINFO, FCVAR_DONTRECORD}, "The bodygroups to use, if the model has any")
+
+	local lframeswepclass = lframeswepclass or ""
+	local fovdelaytoggle = false
+end
+
+if SERVER then
+	util.AddNetworkString("Beatrun_ClientFOVChange")
 end
 
 local PLAYER = {}
@@ -18,6 +25,8 @@ PLAYER.TauntCam = TauntCamera()
 
 PLAYER.WalkSpeed = 200
 PLAYER.RunSpeed = 400
+
+local FOVModifierBlock = false -- trust me this is important -losttrackpad
 
 function PLAYER:SetupDataTables()
 	BaseClass.SetupDataTables(self)
@@ -122,13 +131,25 @@ end
 
 function PLAYER:Loadout()
 	if GetGlobalBool("GM_DATATHEFT") or GetGlobalBool("GM_DEATHMATCH") then
-		for _, v in ipairs(DATATHEFT_LOADOUTS[math.random(#DATATHEFT_LOADOUTS)]) do
-			local wep = self.Player:Give(v)
+		if GetConVar("Beatrun_RandomMWLoadouts"):GetBool() then
+			for i = 0, 1 do
+				local randomSWEP = getRandomMGBaseWeapon()
+				local w = self.Player:Give(randomSWEP.ClassName)
 
-			timer.Simple(1, function()
-				if wep:GetPrimaryAmmoType() ~= -1 then self.Player:GiveAmmo(10000, wep:GetPrimaryAmmoType(), true) end
-				if wep:GetSecondaryAmmoType() ~= -1 then self.Player:GiveAmmo(5, wep:GetSecondaryAmmoType(), true) end
-			end)
+				timer.Simple(1, function()
+					if w:GetPrimaryAmmoType() ~= -1 then self.Player:GiveAmmo(10000, w:GetPrimaryAmmoType(), true) end
+					if w:GetSecondaryAmmoType() ~= -1 then self.Player:GiveAmmo(5, w:GetSecondaryAmmoType(), true) end
+				end)
+			end
+		else
+			for _, v in ipairs(BEATRUN_GAMEMODES_LOADOUTS[math.random(#BEATRUN_GAMEMODES_LOADOUTS)]) do
+				local w = self.Player:Give(v)
+
+				timer.Simple(1, function()
+					if w:GetPrimaryAmmoType() ~= -1 then self.Player:GiveAmmo(10000, w:GetPrimaryAmmoType(), true) end
+					if w:GetSecondaryAmmoType() ~= -1 then self.Player:GiveAmmo(5, w:GetSecondaryAmmoType(), true) end
+				end)
+			end
 		end
 	else
 		self.Player:RemoveAllAmmo()
@@ -208,7 +229,14 @@ function PLAYER:Spawn()
 				ply:SetLocalVelocity(vector_origin)
 				ply:SetPos(Course_StartPos)
 			end)
+
+			-- ReplayStop(ply)
+			-- ReplayStart(ply)
 		end
+	end
+
+	if not ply.InReplay and not CPSave then
+		ply:SetNW2Float("CPNum", 1)
 	end
 
 	if not CPSave then
@@ -347,19 +375,32 @@ function PLAYER:CreateMove(cmd)
 end
 
 function PLAYER:CalcView(view)
-	local prefov = view.fov
-	local fov = GetConVar("Beatrun_FOV"):GetInt()
 	local mult = (self.Player:InOverdrive() and 1.1) or 1
 	local fixfovmult = 1
 
 	if CLIENT then
-		view.fov = fov * mult
-		if !LocalPlayer():GetActiveWeapon().ARC9 and GetConVar("Beatrun_Debug_FOVFix"):GetBool() then
-			fixfovmult = view.fov / fov
+		-- VERY hacky and dirty code and I apologize in advance
+
+		local fov = GetConVar("Beatrun_FOV"):GetInt()
+
+		if IsValid(LocalPlayer():GetActiveWeapon()) then
+			if lframeswepclass != LocalPlayer():GetActiveWeapon():GetClass() then
+				-- SP clientside weapon swap detection
+				FOVModifierBlock = true
+				timer.Simple(1, function() FOVModifierBlock = false end)
+			end
+
+			if !FOVModifierBlock and !LocalPlayer():GetActiveWeapon().ARC9 then
+				fixfovmult = view.fov / fov
+			else
+				fixfovmult = 1
+			end
+
+			view.fov = fov * mult * fixfovmult
+			lframeswepclass = LocalPlayer():GetActiveWeapon():GetClass()
 		else
-			fixfovmult = 1
+			view.fov = fov * mult
 		end
-		view.fov = fov * mult * fixfovmult
 	end
 
 	if self.TauntCam:CalcView(view, self.Player, self.Player:IsPlayingTaunt()) then return true end
@@ -516,5 +557,37 @@ hook.Add("PlayerSpawn", "ResetStateTransition", function(ply, transition)
 		end
 	end)
 end)
+
+hook.Add("PlayerSwitchWeapon", "BeatrunSwitchFOVFix", function(ply)
+	-- This ENTIRE hook is for dealing with ARC9's stupid FOV reset
+	-- behavior after switching away from an ARC9 SWEP.
+	ply:SetFOV(ply:GetInfoNum("Beatrun_FOV", 120))
+	timer.Simple(0, function()
+		ply:SetFOV(ply:GetInfoNum("Beatrun_FOV", 120))
+	end)
+end)
+
+cvars.AddChangeCallback("Beatrun_FOV", function(convar, oldval, newval)
+	if CLIENT and game.SinglePlayer() then
+		LocalPlayer():SetFOV(newval)
+	elseif CLIENT then
+		FOVModifierBlock = true
+		timer.Create("beatrunfovdelay", 0.16, 1, function()
+			FOVModifierBlock = false
+			if !FOVModifierBlock then
+				net.Start("Beatrun_ClientFOVChange")
+				net.WriteInt(newval, 16)
+				net.SendToServer()
+				FOVModifierBlock = true
+			end
+		end)
+	end
+end)
+
+if SERVER then
+	net.Receive("Beatrun_ClientFOVChange", function(len, ply)
+		ply:SetFOV((net.ReadInt(16)))
+	end)
+end
 
 player_manager.RegisterClass("player_beatrun", PLAYER, "player_default")
