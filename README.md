@@ -1,12 +1,10 @@
 # beatrun-base
 
-* ~~[Русский](./README_ru.md)~~ _(Removed)_
-
 Parkour gamemode for _Garry's Mod_, modified for use as a gamemode base.
 
 _Wanna **play** Beatrun? Check [this](https://github.com/JonnyBro/beatrun) version of Beatrun out instead._
 
-**NOT SUPPORTED ON THE BEATRUN.RU DISCORD. DO NOT ASK FOR HELP THERE.**
+**CURRENTLY NOT SUPPORTED.**
 
 ## Changes
 
@@ -16,8 +14,7 @@ _Wanna **play** Beatrun? Check [this](https://github.com/JonnyBro/beatrun) versi
 * Implemented "Proper" Kick Glitch just like in [original ME](https://www.youtube.com/watch?v=zK5y3NBUStc).
 * Added an in-game config menu - you can find it in the tool menu, in the *Beatrun* Category.\
 **All** of the Beatrun settings can be changed in the configuration menu.
-* Localization support.\
-Available in 5 languages now!
+* Localization support.
 * Added the ability to get off of ladders.
 * Added a ConVar to allow Overdrive usage on the server - `Beatrun_AllowOverdriveInMultiplayer`.
 * Added a ConVar to toggle between old and new Kick Glitch - `Beatrun_OldKickGlitch`.
@@ -42,5 +39,5 @@ Available in 5 languages now!
 ## Credits
 
 * [All contributors](https://github.com/JonnyBro/beatrun/graphs/contributors) - <3.
-* [EarthyKiller127](https://www.youtube.com/channel/UCiFqPwGo4x0J65xafIaECDQ) - He made that piece of shit.
+* [EarthyKiller127](https://www.youtube.com/channel/UCiFqPwGo4x0J65xafIaECDQ) - Making the original obfuscated mod.
 * [relaxtakenotes](https://github.com/relaxtakenotes) - Made all of this possible.
